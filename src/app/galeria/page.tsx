@@ -2,42 +2,67 @@
 'use client'
 
 import { Template, ImageCard } from '@/components'
+import { Image } from '@/resources/image/image.resource'
+import { useImageService } from '@/resources/image/image.service'
 import { useState } from 'react'
 
-export default function GaleriaPage(){
+export default function GaleriaPage() {
 
-    const image1 = 'https://cdn6.campograndenews.com.br/uploads/noticias/2023/05/08/6458dbeeb7683.jpg';
-    const image2 = 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/322625648.jpg?k=c880dc259724628f33c2272282051f27f0fb175b79a5dd6f0f015727dcd32d8b&o=&hp=1';
-    const nome1 = 'Paraiso'
-    const nome2 = 'Natureza'
+    const useService = useImageService();
+    const [images, setImages] = useState<Image[]>([])
+    const [query, setQuery] = useState<string>('')
+    const [extension, setExtension] = useState<string>('')
 
+    async function searchImages() {
+        console.log("valor digitado", query)
+        const result = await useService.buscar(query, extension);
+        setImages(result);
+    }
 
-    const [codigoImage, setCodigoImage] = useState<number>(2);
-    const [urlImagem, setUrlImagem] = useState<string>(image2);
-    const [nomeImage, setNomeImage] = useState<string>(nome2)
+    function renderImageCard(image: Image) {
+        return (
+            <ImageCard key={image.url}
+                nome={image.name}
+                src={image.url}
+                tamanho={image.size}
+                dataUpload={image.uploadDate} />
+        )
+    }
 
-    
-    function mudarImage(){
-        if(codigoImage == 1){
-            setCodigoImage(2)
-            setUrlImagem(image2)
-            setNomeImage(nome2)
-
-        }else{
-            setCodigoImage(1)
-            setUrlImagem(image1)
-            setNomeImage(nome1)
-        }
-
+    function renderImageCards() {
+        return images.map(renderImageCard)
     }
 
     return (
         <Template>
-            <button className='bg-gray-500' onClick={mudarImage}>Clique para mudar</button>
+
+            <section className='flex flex-col items-center justify-center my-5'>
+
+                <div className='flex space-x-4'>
+                    <input type='text'
+                        onChange={event => setQuery(event.target.value)}
+                        className="border px-3 py-2 rounded-lg text-gray-900" />
+
+
+                    <select
+                        onChange={ event => setExtension(event.target.value) }
+                        className='border px-4 py-2 rounded-lg text-gray-900'>
+                        <option value="">All formats</option>
+                        <option value="PNG">PNG</option>
+                        <option value="JPEG">JPEG</option>
+                        <option value="GIF">GIF</option>
+                    </select>
+
+                    <button onClick={searchImages} className="bg bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+                    <button className="bg bg-yellow-500 text-white px-4 py-2 rounded-lg">Add new</button>
+                </div>
+            </section>
+
             <section className='grid grid-cols-4 gap-8' >
-                <ImageCard nome={nomeImage} tamanho="10mb" dataUpload='01/01/2024' src={ urlImagem }/>
-                <ImageCard nome={nomeImage} tamanho="10mb" dataUpload='01/01/2024' src={ urlImagem }/>
-                <ImageCard nome={nomeImage} tamanho="10mb" dataUpload='01/01/2024' src={ urlImagem }/>
+
+                {
+                    renderImageCards()
+                }
             </section>
         </Template>
     )
