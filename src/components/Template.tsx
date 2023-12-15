@@ -3,10 +3,9 @@ interface TemplateProps {
     loading?: boolean;
 }
 
-export const Template: React.FC<TemplateProps> = ({ children, loading }: TemplateProps) => {
+export const Template: React.FC<TemplateProps> = ({ children, loading = false }: TemplateProps) => {
     return (
         <>
-
             <Header />
 
             <div className={` ${loading ? 'animate-pulse' : ''}  container mx-auto mt-8 px-4 `}>
